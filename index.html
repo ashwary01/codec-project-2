@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OmniSupport AI - Smart NLP Customer Service Chatbot & NLP Lab</title>
+  <meta name="description" content="An interactive, rule-based and TF-IDF NLP-powered customer service chatbot with live intent classification, entity extraction, sentiment analysis, and customizable knowledge base.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Chart.js for Analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Canvas Confetti for customer resolution -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="theme-dark">
+  <!-- App Container -->
+  <div class="app-wrapper">
+    
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="header-brand">
+        <div class="brand-logo">
+          <i class="fa-solid fa-robot"></i>
+        </div>
+        <div class="brand-info">
+          <h1>OmniSupport <span class="badge-nlp">NLP AI Studio</span></h1>
+          <p class="subtitle">Rule-Based & TF-IDF Cosine Similarity Chatbot Engine</p>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <!-- Engine Selection -->
+        <div class="engine-selector-box">
+          <label for="engineSelect"><i class="fa-solid fa-gears"></i> Engine Mode:</label>
+          <select id="engineSelect" class="styled-select">
+            <option value="hybrid" selected>⚡ Hybrid (TF-IDF + Intent Patterns)</option>
+            <option value="tfidf">📊 Pure TF-IDF Cosine Similarity</option>
+            <option value="rules">🎯 Rule-Based Pattern Matcher (Regex)</option>
+          </select>
+        </div>
+
+        <!-- Mode Toggles -->
+        <div class="header-actions">
+          <button id="btnVoiceToggle" class="icon-btn" title="Toggle Voice Response (Text-To-Speech)">
+            <i class="fa-solid fa-volume-high"></i>
+          </button>
+          <button id="btnInspectorToggle" class="icon-btn active" title="Toggle NLP Inspector Panel">
+            <i class="fa-solid fa-microscope"></i>
+          </button>
+          <button id="btnThemeToggle" class="icon-btn" title="Toggle Light/Dark Theme">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+          <button id="btnHelpModal" class="btn btn-outline btn-sm">
+            <i class="fa-solid fa-graduation-cap"></i> How NLP Works
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Workspace Split View -->
+    <main class="main-content">
+      
+      <!-- LEFT PANEL: Real-time NLP Inspector & Diagnostics -->
+      <aside id="nlpInspector" class="inspector-panel">
+        <div class="panel-header">
+          <h2><i class="fa-solid fa-diagram-project"></i> Real-Time NLP Inspector</h2>
+          <span class="pulse-indicator" title="Live Processing Ready"></span>
+        </div>
+
+        <div class="inspector-scroll">
+          
+          <!-- Sentiment & Intent Quick Stats -->
+          <div class="card stat-group-card">
+            <div class="stat-item">
+              <span class="stat-label">Sentiment</span>
+              <div id="inspectorSentiment" class="sentiment-badge neutral">
+                <i class="fa-solid fa-meh"></i> <span>Neutral (0.0)</span>
+              </div>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Top Intent</span>
+              <div id="inspectorTopIntent" class="intent-pill">
+                <span>Waiting for input...</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tokenization & Preprocessing Pipeline -->
+          <div class="card inspector-card">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-filter"></i> Text Preprocessing Pipeline</h3>
+            </div>
+            <div class="pipeline-steps">
+              <div class="pipeline-step">
+                <span class="step-num">1</span>
+                <div class="step-content">
+                  <label>Raw Query</label>
+                  <div id="pipeRaw" class="code-box">"Waiting for query..."</div>
+                </div>
+              </div>
+
+              <div class="pipeline-step">
+                <span class="step-num">2</span>
+                <div class="step-content">
+                  <label>Normalized & Tokenized</label>
+                  <div id="pipeTokens" class="tokens-flex">
+                    <span class="token-tag empty">No query yet</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pipeline-step">
+                <span class="step-num">3</span>
+                <div class="step-content">
+                  <label>Stopwords Removed</label>
+                  <div id="pipeClean" class="tokens-flex">
+                    <span class="token-tag empty">No query yet</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pipeline-step">
+                <span class="step-num">4</span>
+                <div class="step-content">
+                  <label>Stemmed / Lemmatized Terms</label>
+                  <div id="pipeStemmed" class="tokens-flex">
+                    <span class="token-tag empty">No query yet</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Entity Extraction -->
+          <div class="card inspector-card">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-tags"></i> Extracted Entities (NER)</h3>
+            </div>
+            <div id="extractedEntities" class="entities-container">
+              <p class="empty-state-text">No entities extracted yet (Order IDs, Emails, Dates, Products, etc.).</p>
+            </div>
+          </div>
+
+          <!-- Intent Confidence Ranking Matrix -->
+          <div class="card inspector-card">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-chart-bar"></i> Intent Confidence Matrix</h3>
+            </div>
+            <div id="intentScoresList" class="intent-matrix-list">
+              <p class="empty-state-text">Send a message to visualize similarity scores across all trained intents.</p>
+            </div>
+          </div>
+
+          <!-- Context & Conversation State -->
+          <div class="card inspector-card">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-network-wired"></i> Dialogue Context & State</h3>
+            </div>
+            <div class="context-info-box">
+              <div class="context-row">
+                <span>Active Context:</span>
+                <strong id="ctxActiveState" class="highlight-text">None (General)</strong>
+              </div>
+              <div class="context-row">
+                <span>Stored Slot Data:</span>
+                <pre id="ctxSlotData" class="code-box-sm">{}</pre>
+              </div>
+              <div class="context-row">
+                <span>Fallback Counter:</span>
+                <span id="ctxFallbackCount" class="badge-sm">0 / 3</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </aside>
+
+      <!-- CENTER PANEL: Main Chatbot Interface -->
+      <section class="chat-section">
+        
+        <!-- Chat Header Bar -->
+        <div class="chat-header">
+          <div class="bot-profile">
+            <div class="avatar-box">
+              <i class="fa-solid fa-headset"></i>
+              <span class="online-status"></span>
+            </div>
+            <div class="bot-meta">
+              <h3>Customer Support AI Assistant</h3>
+              <p><span class="dot"></span> Online | Ready to answer FAQ & resolve issues</p>
+            </div>
+          </div>
+
+          <div class="chat-actions">
+            <button id="btnEscalateAgent" class="btn btn-outline-danger btn-sm" title="Escalate to Human Representative">
+              <i class="fa-solid fa-user-tie"></i> Escalate to Human
+            </button>
+            <button id="btnClearChat" class="btn btn-ghost btn-sm" title="Clear Chat History">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+            <button id="btnExportChat" class="btn btn-ghost btn-sm" title="Export Transcript">
+              <i class="fa-solid fa-download"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Chat Messages Display Container -->
+        <div id="chatMessages" class="chat-messages-container">
+          <!-- Initial Welcome Message injected dynamically -->
+        </div>
+
+        <!-- Quick Suggestion Prompts Bar -->
+        <div class="quick-prompts-wrapper">
+          <div class="quick-prompts-label"><i class="fa-solid fa-bolt"></i> Frequently Asked Questions:</div>
+          <div class="quick-prompts-scroll" id="quickPromptsContainer">
+            <button class="prompt-chip" data-query="Where is my order ORD-98234?">📦 Where is my order?</button>
+            <button class="prompt-chip" data-query="How do I request a full refund?">💳 How do I get a refund?</button>
+            <button class="prompt-chip" data-query="What are your business operating hours?">🕒 Business hours?</button>
+            <button class="prompt-chip" data-query="I forgot my password and cannot login">🔐 Reset password</button>
+            <button class="prompt-chip" data-query="Can I change my shipping delivery address?">🚚 Change shipping address</button>
+            <button class="prompt-chip" data-query="My received product is damaged and broken!">⚠️ Damaged item received</button>
+          </div>
+        </div>
+
+        <!-- Message Input Bar -->
+        <div class="chat-input-area">
+          <form id="chatForm" class="input-form">
+            <button type="button" id="btnMic" class="mic-btn" title="Voice Search / Speech to Text">
+              <i class="fa-solid fa-microphone"></i>
+            </button>
+            <div class="input-field-wrapper">
+              <input type="text" id="userInput" placeholder="Ask a question (e.g. 'Where is my order?', 'How to reset password?')..." autocomplete="off">
+            </div>
+            <button type="submit" id="btnSend" class="send-btn">
+              <span>Send</span> <i class="fa-solid fa-paper-plane"></i>
+            </button>
+          </form>
+          <div class="input-footer-info">
+            <span>Powered by Natural Language Preprocessing (Stemming, Stopwords, TF-IDF, Regex Entities)</span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- RIGHT PANEL: Studio Drawer (Knowledge Base, Sandbox, Analytics, Widget Code) -->
+      <aside class="studio-panel">
+        
+        <!-- Navigation Tabs -->
+        <nav class="studio-tabs">
+          <button class="tab-btn active" data-tab="tabKB">
+            <i class="fa-solid fa-database"></i> Knowledge Base
+          </button>
+          <button class="tab-btn" data-tab="tabTester">
+            <i class="fa-solid fa-flask"></i> NLP Lab
+          </button>
+          <button class="tab-btn" data-tab="tabAnalytics">
+            <i class="fa-solid fa-chart-pie"></i> Analytics
+          </button>
+          <button class="tab-btn" data-tab="tabEmbed">
+            <i class="fa-solid fa-code"></i> Embed
+          </button>
+        </nav>
+
+        <div class="tab-contents">
+          
+          <!-- TAB 1: KNOWLEDGE BASE STUDIO -->
+          <div id="tabKB" class="tab-pane active">
+            <div class="pane-header">
+              <h3>Intent & Knowledge Base Management</h3>
+              <p>Customize chatbot intents, training patterns, keywords, and automated responses.</p>
+            </div>
+
+            <div class="kb-toolbar">
+              <input type="text" id="kbSearchInput" class="styled-input" placeholder="Search intents or keywords...">
+              <button id="btnOpenAddIntentModal" class="btn btn-primary btn-sm">
+                <i class="fa-solid fa-plus"></i> Add Intent
+              </button>
+            </div>
+
+            <!-- Sensitivity / Threshold Slider -->
+            <div class="threshold-slider-box card">
+              <div class="slider-header">
+                <label for="confidenceThreshold">Min Confidence Threshold:</label>
+                <span id="thresholdValue" class="badge-primary">35%</span>
+              </div>
+              <input type="range" id="confidenceThreshold" min="10" max="80" value="35" step="5">
+              <small class="help-text">Queries below this confidence trigger the chatbot's intelligent fallback response.</small>
+            </div>
+
+            <div id="kbIntentsList" class="kb-intents-accordion">
+              <!-- Dynamically populated intent cards -->
+            </div>
+
+            <div class="kb-actions-footer">
+              <button id="btnResetKB" class="btn btn-outline-danger btn-sm">
+                <i class="fa-solid fa-rotate-left"></i> Reset Defaults
+              </button>
+              <button id="btnExportKB" class="btn btn-ghost btn-sm">
+                <i class="fa-solid fa-file-export"></i> Export JSON
+              </button>
+            </div>
+          </div>
+
+          <!-- TAB 2: NLP ALGORITHM LAB -->
+          <div id="tabTester" class="tab-pane">
+            <div class="pane-header">
+              <h3>NLP Algorithm Playground</h3>
+              <p>Experiment directly with tokenization, TF-IDF calculation, and similarity algorithms.</p>
+            </div>
+
+            <div class="lab-card card">
+              <h4>Sentence Similarity Tester</h4>
+              <p class="card-desc">Compare similarity between two sentences using Cosine Similarity & Jaccard Index.</p>
+              
+              <div class="form-group">
+                <label>Sentence A (Training Phrase):</label>
+                <input type="text" id="labSentA" class="styled-input" value="How can I track my shipped package order?">
+              </div>
+
+              <div class="form-group">
+                <label>Sentence B (User Query):</label>
+                <input type="text" id="labSentB" class="styled-input" value="Where is my order package right now?">
+              </div>
+
+              <button id="btnRunLabCompare" class="btn btn-primary btn-block">
+                <i class="fa-solid fa-calculator"></i> Calculate Vector Similarity
+              </button>
+
+              <div id="labResultBox" class="lab-results-grid hidden">
+                <div class="lab-res-card">
+                  <span class="lab-res-title">Cosine Similarity</span>
+                  <strong id="labCosineVal" class="lab-res-val">0.00</strong>
+                </div>
+                <div class="lab-res-card">
+                  <span class="lab-res-title">Jaccard Index</span>
+                  <strong id="labJaccardVal" class="lab-res-val">0.00</strong>
+                </div>
+                <div class="lab-res-card">
+                  <span class="lab-res-title">Overlap Stem Tokens</span>
+                  <strong id="labOverlapVal" class="lab-res-val">0</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- Preprocessing Breakdown Card -->
+            <div class="lab-card card">
+              <h4>Interactive Porter Stemmer & Stopwords Test</h4>
+              <div class="form-group">
+                <label>Input Words / Phrase:</label>
+                <input type="text" id="labStemInput" class="styled-input" value="running packages refunded shipping troubleshooting accounts">
+              </div>
+              <div id="labStemOutput" class="stem-results-flex">
+                <!-- Result tokens -->
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 3: ANALYTICS & LOGS -->
+          <div id="tabAnalytics" class="tab-pane">
+            <div class="pane-header">
+              <h3>Chatbot Performance & Insights</h3>
+              <p>Metrics tracked during active session.</p>
+            </div>
+
+            <div class="analytics-metrics-grid">
+              <div class="metric-card">
+                <span class="metric-num" id="statTotalQueries">0</span>
+                <span class="metric-title">Total Queries</span>
+              </div>
+              <div class="metric-card">
+                <span class="metric-num text-success" id="statResolutionRate">100%</span>
+                <span class="metric-title">Bot Accuracy Rate</span>
+              </div>
+              <div class="metric-card">
+                <span class="metric-num text-warning" id="statEscalations">0</span>
+                <span class="metric-title">Escalation Count</span>
+              </div>
+              <div class="metric-card">
+                <span class="metric-num text-info" id="statAvgConfidence">0%</span>
+                <span class="metric-title">Avg Confidence</span>
+              </div>
+            </div>
+
+            <div class="card chart-card">
+              <h4>Intents Frequency Chart</h4>
+              <div class="chart-container">
+                <canvas id="intentDistributionChart"></canvas>
+              </div>
+            </div>
+
+            <div class="card chart-card">
+              <h4>Sentiment Breakdown</h4>
+              <div class="chart-container">
+                <canvas id="sentimentChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 4: EMBED WIDGET CODE GENERATOR -->
+          <div id="tabEmbed" class="tab-pane">
+            <div class="pane-header">
+              <h3>Deploy Web Widget</h3>
+              <p>Copy and paste this script tag to embed the OmniSupport chatbot widget on any website!</p>
+            </div>
+
+            <div class="card">
+              <div class="form-group">
+                <label>Widget Primary Color:</label>
+                <input type="color" id="widgetColorPicker" value="#6366f1" class="color-picker-input">
+              </div>
+
+              <div class="form-group">
+                <label>Widget Greeting Text:</label>
+                <input type="text" id="widgetGreetingInput" class="styled-input" value="Hi there! 👋 How can I help you today?">
+              </div>
+
+              <div class="form-group">
+                <label>Embed Code Snippet:</label>
+                <textarea id="widgetCodeSnippet" class="code-textarea" readonly rows="6"></textarea>
+              </div>
+
+              <button id="btnCopyWidgetCode" class="btn btn-primary btn-block">
+                <i class="fa-solid fa-copy"></i> Copy Embed Code
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+
+  <!-- ADD INTENT MODAL -->
+  <div id="modalAddIntent" class="modal-backdrop hidden">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-plus-circle"></i> Add New Knowledge Intent</h3>
+        <button id="btnCloseModal" class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="addIntentForm">
+          <div class="form-group">
+            <label>Intent ID (e.g. <code>shipping_tracking</code>):</label>
+            <input type="text" id="newIntentId" class="styled-input" required placeholder="e.g. return_policy">
+          </div>
+          <div class="form-group">
+            <label>Display Name:</label>
+            <input type="text" id="newIntentName" class="styled-input" required placeholder="e.g. Return & Refund Policy">
+          </div>
+          <div class="form-group">
+            <label>Category:</label>
+            <select id="newIntentCategory" class="styled-select">
+              <option value="Shipping">Shipping & Delivery</option>
+              <option value="Billing">Billing & Refunds</option>
+              <option value="Account">Account & Security</option>
+              <option value="Technical">Technical Support</option>
+              <option value="General">General Inquiries</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Sample User Phrases / Keywords (Comma separated):</label>
+            <textarea id="newIntentPhrases" class="styled-textarea" required placeholder="e.g. how do I return an item, return policy, exchange product, return label"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Chatbot Response Message:</label>
+            <textarea id="newIntentResponse" class="styled-textarea" required placeholder="e.g. You can return any item within 30 days of purchase for a full refund..."></textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="btnCancelAddIntent" class="btn btn-ghost">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Intent</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW NLP WORKS EDUCATIONAL MODAL -->
+  <div id="modalHelp" class="modal-backdrop hidden">
+    <div class="modal-box modal-lg">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-graduation-cap"></i> How This NLP Chatbot Engine Works</h3>
+        <button id="btnCloseHelpModal" class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body help-body">
+        
+        <div class="nlp-tutorial-grid">
+          
+          <div class="tut-step-card">
+            <div class="tut-num">1</div>
+            <h4>Text Preprocessing & Normalization</h4>
+            <p>Converts incoming raw input into lowercase, strips special characters/punctuations, tokenizes sentences into individual word tokens, removes English stopwords (e.g. <em>"is", "the", "a", "my"</em>), and applies Porter Stemming to reduce words to their root stems (e.g. <em>"tracking" &rarr; "track"</em>).</p>
+          </div>
+
+          <div class="tut-step-card">
+            <div class="tut-num">2</div>
+            <h4>Feature Extraction (TF-IDF & N-Grams)</h4>
+            <p>Computes <strong>Term Frequency - Inverse Document Frequency (TF-IDF)</strong> vectors for both the user input and training intent phrases. Words that are rare across intent documents carry higher discriminatory weight in the vector space model.</p>
+          </div>
+
+          <div class="tut-step-card">
+            <div class="tut-num">3</div>
+            <h4>Similarity & Intent Classification</h4>
+            <p>Calculates the <strong>Cosine Similarity</strong> score (the cosine of the angle between two word vectors in multi-dimensional space):</p>
+            <div class="math-box">
+              $$\text{Cosine Similarity} = \frac{\vec{A} \cdot \vec{B}}{\|\vec{A}\| \|\vec{B}\|}$$
+            </div>
+            <p>The intent with the highest matching confidence percentage is selected as the top predicted intent.</p>
+          </div>
+
+          <div class="tut-step-card">
+            <div class="tut-num">4</div>
+            <h4>Named Entity Recognition (NER) & Regex</h4>
+            <p>Scans the text using regex rules to dynamically detect and extract key entities such as <strong>Order IDs</strong> (e.g., <code>ORD-98234</code>), <strong>Email addresses</strong>, <strong>Dates</strong>, <strong>Dollar amounts</strong>, and <strong>Product Names</strong>.</p>
+          </div>
+
+          <div class="tut-step-card">
+            <div class="tut-num">5</div>
+            <h4>Sentiment Analysis & Escalation</h4>
+            <p>Scans for emotion lexicon words (positive vs frustrated/negative). If frustration level exceeds a threshold or consecutive fallbacks occur, the chatbot automatically initiates an automated human representative escalation ticket!</p>
+          </div>
+
+          <div class="tut-step-card">
+            <div class="tut-num">6</div>
+            <h4>Stateful Multi-Turn Context</h4>
+            <p>Remembers conversation context (such as pending order verification) across multiple message turns to prompt users naturally for missing details.</p>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Javascript Modules -->
+  <script src="js/knowledge_base.js"></script>
+  <script src="js/nlp_engine.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
